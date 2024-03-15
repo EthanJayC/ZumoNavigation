@@ -29,6 +29,7 @@ const uint8_t sensorThreshold = 6;
 bool proxLeftActive;
 bool proxFrontActive;
 bool proxRightActive;
+static uint8_t houseCount = 2;
 
 #define NUM_SENSORS 3
 unsigned int lineSensorValues[NUM_SENSORS];
@@ -64,7 +65,7 @@ void objectDetected(){
   lcd.clear();
   lcd.print("STOP");
     motors.setSpeeds(STOP_N_DROP, STOP_N_DROP);
-    delay(1000);
+    delay(750);
     lcd.clear();
   lcd.println("Reverse");
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
@@ -96,7 +97,9 @@ void loop()
     buttonA.waitForRelease();
     waitForButtonAndCountDown();
   }
+
   proxSensors.read();
+
   uint8_t leftValue = proxSensors.countsFrontWithLeftLeds();
   uint8_t rightValue = proxSensors.countsFrontWithRightLeds();
 
@@ -109,7 +112,22 @@ void loop()
   //if object is detected, stop, reverse and move on
   if(objectSeen) 
   {
+    houseCount--;
     objectDetected();
+  if (houseCount == 0)
+  {
+    motors.setSpeeds(0, 0);
+
+    buzzer.playNote(NOTE_G(2), 100, 15);
+    delay(200);
+    buzzer.playNote(NOTE_G(2), 100, 15);
+    delay(200);
+    buzzer.playNote(NOTE_G(2), 100, 15);
+    delay(200);
+    buzzer.playNote(NOTE_G(3), 1000, 15);
+    while(1 == 1){}
+
+  }
   } 
   else if (leftSensorNum >= 3 && rightSensorNum >= 3)  
   {
