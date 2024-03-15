@@ -125,7 +125,10 @@ void loop()
     buzzer.playNote(NOTE_G(2), 100, 15);
     delay(200);
     buzzer.playNote(NOTE_G(3), 1000, 15);
-    while(1 == 1){}
+    while(1 == 1){
+      // this is to keep the robot stationary after discovering 2 houses.
+      // this implementation will stay until I can get it to retrace it steps, bug-free.
+    }
 
   }
   } 
