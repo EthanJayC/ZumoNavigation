@@ -13,6 +13,8 @@
 #define TURN_DURATION     300 
 #define UNSTUCK_DURATION 1500 
 #define STOP_N_DROP 0
+#define STUCK_TIMER 0
+#define HIT_INTERVAL 1000
 
 Zumo32U4LCD lcd;
 Zumo32U4ButtonA buttonA;
@@ -30,6 +32,8 @@ bool proxLeftActive;
 bool proxFrontActive;
 bool proxRightActive;
 static uint8_t houseCount = 2;
+unsigned long leftHitReset = 0;
+unsigned long rightHitReset = 0;
 
 #define NUM_SENSORS 3
 unsigned int lineSensorValues[NUM_SENSORS];
@@ -98,8 +102,8 @@ void loop()
     waitForButtonAndCountDown();
   }
 
-  proxSensors.read();
 
+  proxSensors.read();
   uint8_t leftValue = proxSensors.countsFrontWithLeftLeds();
   uint8_t rightValue = proxSensors.countsFrontWithRightLeds();
 
@@ -107,7 +111,7 @@ void loop()
   bool objectSeen = 0;
   objectSeen = leftValue >= sensorThreshold && rightValue >= sensorThreshold;
 
-    lineSensors.read(lineSensorValues);
+  lineSensors.read(lineSensorValues);
 
   //if object is detected, stop, reverse and move on
   if(objectSeen) 
@@ -129,9 +133,15 @@ void loop()
       // this is to keep the robot stationary after discovering 2 houses.
       // this implementation will stay until I can get it to retrace it steps, bug-free.
     }
-
   }
   } 
+  // checks if a second has passed since the last hit, resets if over 1 second
+  // this is to help prevent the robot doing a full turn when it's not stuck
+  else if (millis() - leftHitReset < HIT_INTERVAL && millis() - rightHitReset < HIT_INTERVAL) 
+  {
+      leftHitReset = 0;
+      rightHitReset = 0;
+  }
   else if (leftSensorNum >= 3 && rightSensorNum >= 3)  
   {
     // if both sensors tap and reverse 3x each then we do a lil swirl
@@ -153,6 +163,7 @@ void loop()
     
     Serial.println("left value: ");
     Serial.println(leftSensorNum);
+    leftHitReset = millis();
     leftSensorNum++;
   }
   else if (lineSensorValues[NUM_SENSORS - 1] > QTR_THRESHOLD)
@@ -167,6 +178,7 @@ void loop()
     
     Serial.println("right value: ");
     Serial.println(rightSensorNum);
+    rightHitReset = millis();
     rightSensorNum++;
   }
   else
@@ -176,4 +188,3 @@ void loop()
     ledRed(0);
   }
   }
-
