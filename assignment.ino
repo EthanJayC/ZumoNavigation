@@ -13,7 +13,6 @@
 #define TURN_DURATION     300 
 #define UNSTUCK_DURATION 1500 
 #define STOP_N_DROP 0
-#define STUCK_TIMER 0
 #define HIT_INTERVAL 1000
 
 Zumo32U4LCD lcd;
@@ -129,10 +128,7 @@ void loop()
     buzzer.playNote(NOTE_G(2), 100, 15);
     delay(200);
     buzzer.playNote(NOTE_G(3), 1000, 15);
-    while(1 == 1){
-      // this is to keep the robot stationary after discovering 2 houses.
-      // this implementation will stay until I can get it to retrace it steps, bug-free.
-    }
+   
   }
   } 
   // checks if a second has passed since the last hit, resets if over 1 second
