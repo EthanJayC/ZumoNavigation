@@ -63,6 +63,8 @@ void waitForButtonAndCountDown()
   delay(500);
 }
 
+//This function is called when an object is detected by the proximity sensors
+//It prints some words on the LCD screen if attached, and the green LED turns on
 void objectDetected(){
     ledGreen(1);
   lcd.clear();
@@ -90,26 +92,27 @@ void setup()
   Serial.begin(9600);
 }
 
+
 void loop()
 {
+  //Begins the countdown to start the navigation
   if (buttonA.isPressed())
   {
-    // If button is pressed, stop and wait for another press to
-    // go again.
     motors.setSpeeds(0, 0);
     buttonA.waitForRelease();
     waitForButtonAndCountDown();
   }
 
-
+ //takes a reading from its proxim sensors to determine if an object is detected
   proxSensors.read();
   uint8_t leftValue = proxSensors.countsFrontWithLeftLeds();
   uint8_t rightValue = proxSensors.countsFrontWithRightLeds();
 
-  // Determine if an object is visible or not.
+  // Determine if an object is visible or not, if the threshold is breached, the bool is set to true, which triggers line 119
   bool objectSeen = 0;
   objectSeen = leftValue >= sensorThreshold && rightValue >= sensorThreshold;
 
+  //line sensors take a reading to check if robot is straying over the lines
   lineSensors.read(lineSensorValues);
 
   //if object is detected, stop, reverse and move on
@@ -131,8 +134,9 @@ void loop()
    
   }
   } 
+    
   // checks if a second has passed since the last hit, resets if over 1 second
-  // this is to help prevent the robot doing a full turn when it's not stuck
+  // this is to help prevent the robot doing a full turn when it's not stuck as if it's stuck in a deadend
   else if (millis() - leftHitReset < HIT_INTERVAL && millis() - rightHitReset < HIT_INTERVAL) 
   {
       leftHitReset = 0;
@@ -140,12 +144,12 @@ void loop()
   }
   else if (leftSensorNum >= 3 && rightSensorNum >= 3)  
   {
-    // if both sensors tap and reverse 3x each then we do a lil swirl
+    // if both sensors tap and reverse 3x each then the robot will about turn
     motors.setSpeeds(REVERSE_SPEED, -REVERSE_SPEED);
     delay(UNSTUCK_DURATION);
     leftSensorNum = 0;
     rightSensorNum = 0;
-    //sensors reset so we can repeat this statement
+    //sensors reset so we can repeat this statement for every line reading
   }
   else if (lineSensorValues[0] > QTR_THRESHOLD)
   {
