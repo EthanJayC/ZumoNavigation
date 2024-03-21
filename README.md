@@ -12,3 +12,7 @@ If it detects two houses, it'll play a victory note, and carry on traversing the
 2. Connect a Zumo robot via USB into your device
 3. Click on 'Upload' to upload this code into the Zumo
 4. Turn on the Zumo, set it down on the maze and press A to start.
+
+
+References:
+Some code in this project was taken and modified from this library that contains example sketches: https://pololu.github.io/zumo-32u4-arduino-library/
